@@ -3,13 +3,20 @@ import * as joi from 'joi';
 
 interface EnvVars {
   PORT: number;
+
   STRIPE_SECRET: string;
+  STRIPE_SUCCESS_URL: string;
+  STRIPE_CANCEL_URL: string;
+  STRIPE_ENDPOINT_SECRET: string;
 }
 
 const envsSchema = joi
   .object({
     PORT: joi.number().required(),
     STRIPE_SECRET: joi.string().required(),
+    STRIPE_SUCCESS_URL: joi.string().required(),
+    STRIPE_CANCEL_URL: joi.string().required(),
+    STRIPE_ENDPOINT_SECRET: joi.string().required(),
   })
   .unknown(true);
 
@@ -26,4 +33,7 @@ const enVars: EnvVars = value;
 export const envs: EnvVars = {
   PORT: enVars.PORT,
   STRIPE_SECRET: enVars.STRIPE_SECRET,
+  STRIPE_SUCCESS_URL: enVars.STRIPE_SUCCESS_URL,
+  STRIPE_CANCEL_URL: enVars.STRIPE_CANCEL_URL,
+  STRIPE_ENDPOINT_SECRET: enVars.STRIPE_ENDPOINT_SECRET,
 };

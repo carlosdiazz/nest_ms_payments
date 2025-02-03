@@ -6,7 +6,9 @@ import { envs } from './config';
 async function bootstrap() {
   const logger = new Logger('PAYMENTS-MAIN');
   console.log(envs);
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
