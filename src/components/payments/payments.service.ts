@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import Stripe from 'stripe';
 
 //Propio
 import { envs, NAME_NATS_SERVICE } from 'src/config';
 import { PaymentSessionDto } from './dto/payment-dto';
-import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class PaymentsService {
@@ -67,7 +67,7 @@ export class PaymentsService {
         endpointSecret,
       );
     } catch (err) {
-      console.log(`Error =>webhook `);
+      console.log(`Error => webhook `);
       //console.log(err);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       res.status(400).send({ message: `Webhook Error: ${err.message}` });
@@ -84,7 +84,6 @@ export class PaymentsService {
           orderId: chargeSucceeded.metadata.orderId,
           receiptUrl: chargeSucceeded.receipt_url,
         };
-        console.log(payload);
         this.client.emit('payment.succeeded', payload);
         break;
       }

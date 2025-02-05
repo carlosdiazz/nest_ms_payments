@@ -18,7 +18,6 @@ export class PaymentsController {
 
   @Post('webhook')
   private webhook(@Req() req: Request, @Res() res: Response) {
-    console.log('Entro a webhook');
     return this.paymentsService.webhook(req, res);
   }
 
