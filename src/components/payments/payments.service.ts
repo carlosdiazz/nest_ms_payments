@@ -1,14 +1,19 @@
 import { Request, Response } from 'express';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 
 //Propio
-import { envs } from 'src/config';
+import { envs, NAME_NATS_SERVICE } from 'src/config';
 import { PaymentSessionDto } from './dto/payment-dto';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class PaymentsService {
   private readonly stripe = new Stripe(envs.STRIPE_SECRET);
+
+  constructor(
+    @Inject(NAME_NATS_SERVICE) private readonly client: ClientProxy,
+  ) {}
 
   public async createPaymentSesion(paymentSessionDto: PaymentSessionDto) {
     const { currency, items, orderId } = paymentSessionDto;
@@ -40,7 +45,12 @@ export class PaymentsService {
       success_url: envs.STRIPE_SUCCESS_URL,
       cancel_url: envs.STRIPE_CANCEL_URL,
     });
-    return session;
+    //return session;
+    return {
+      cancelUrl: session.cancel_url,
+      successUrl: session.success_url,
+      url: session.url,
+    };
   }
 
   public webhook(req: Request, res: Response) {
@@ -57,22 +67,31 @@ export class PaymentsService {
         endpointSecret,
       );
     } catch (err) {
+      console.log(`Error =>webhook `);
+      //console.log(err);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      res.status(400).send(`Webhook Error: ${err.message}`);
+      res.status(400).send({ message: `Webhook Error: ${err.message}` });
       return;
     }
 
+    console.log(event.type);
+
     switch (event.type) {
-      case 'charge.succeeded':
-        console.log({
-          metadata: event.data.object.metadata,
-          orderId: event.data.object.metadata.orderId,
-        });
+      case 'charge.succeeded': {
+        const chargeSucceeded = event.data.object;
+        const payload = {
+          stripePayment: chargeSucceeded.id,
+          orderId: chargeSucceeded.metadata.orderId,
+          receiptUrl: chargeSucceeded.receipt_url,
+        };
+        console.log(payload);
+        this.client.emit('payment.succeeded', payload);
         break;
+      }
 
       default:
-        break;
-      //console.log(`Event: ${event.type} not handled`);
+        //break;
+        console.log(`Event: ${event.type} not handled`);
     }
 
     return res.status(200).json({ sig });

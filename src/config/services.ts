@@ -1,0 +1,1 @@
+export const NAME_NATS_SERVICE = 'NATS_SERVICE';

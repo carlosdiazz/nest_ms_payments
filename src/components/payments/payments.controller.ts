@@ -1,21 +1,24 @@
-import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express';
+import { Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PaymentsService } from './payments.service';
 import { PaymentSessionDto } from './dto/payment-dto';
-import { Request, Response } from 'express';
 
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  @Post('create-payment-session')
+  //@Post('create-payment-session')
+  @MessagePattern('create.payment.session')
   private async createPaymentSesion(
-    @Body() paymentSessionDto: PaymentSessionDto,
+    @Payload() paymentSessionDto: PaymentSessionDto,
   ) {
     return this.paymentsService.createPaymentSesion(paymentSessionDto);
   }
 
   @Post('webhook')
   private webhook(@Req() req: Request, @Res() res: Response) {
+    console.log('Entro a webhook');
     return this.paymentsService.webhook(req, res);
   }
 
