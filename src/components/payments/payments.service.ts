@@ -97,10 +97,10 @@ export class PaymentsService {
   }
 
   public success() {
-    return true;
+    return { ok: true, message: 'Success' };
   }
 
   public cancel() {
-    return true;
+    return { ok: true, message: 'Cancel' };
   }
 }

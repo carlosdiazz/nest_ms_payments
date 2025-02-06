@@ -12,3 +12,10 @@ Correr `hookdeck listen 3000  stripe-to-local`
 
 ## Poenr Stripe a correr
 Correr `stripe listen --forward-to localhost:3000/api/payments/webhook`
+
+## PROD
+
+Para la imagen en Producion ejecutar:
+```
+  docker build -f dockerfile.prod -t ms-payments .
+```
