@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
 import { envs } from './config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
@@ -31,7 +31,14 @@ async function bootstrap() {
     },
   );
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: [
+      {
+        path: '',
+        method: RequestMethod.GET,
+      },
+    ],
+  });
 
   await app.startAllMicroservices();
   await app.listen(envs.PORT);
